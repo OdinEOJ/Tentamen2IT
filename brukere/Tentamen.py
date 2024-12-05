@@ -14,24 +14,38 @@ def dumpJson(dumpObject, path):
         json.dump(dumpObject, file, indent=4)
 
 
-brukere = loadJson("brukere/lagring.json")
-tildeltbuss = "tildeltBuss"
+brukere = loadJson("Brukere/lagring.json")
 
 # funkjon for å lage nye brukere og sende de inn i json filen og lagre de inni en liste
-def leggeTilBruker():
+def leggeTilBestilling():
     bruker = {
         "fornavn": input("skriv fornavnet ditt her: "),
         "etternavn": input("skriv etternavnet ditt her: "),
-        "antallPassasjerer": input("skriv telefon nummeret ditt her: "),
-        "antallDagerLeie": input("skriv adressen din her: "),
-        "totalDistanse": input("skriv epost her: "),
+        "antallPassasjerer": input("skriv antall passasjerer: "),
+        "antallDagerLeie": input("skriv antall dager bussen skal leies: "),
+        "totalDistanse": input("skriv distanse av turen her i kilometer: "),
         "tildeltBuss": None,
         "totalpris": None,
+        "turFullført": False,
         "datoForBestilling": datetime.datetime.now().strftime("%c")
         }
     brukere.append(bruker)
-    dumpJson(brukere, "brukere/lagring.json")
-    print(bruker["fornavn"] + ["etternavn"] + " har lagt inn en bestilling!")
+    dumpJson(brukere, "Brukere/lagring.json")
+    print(bruker["fornavn"] + " har lagt inn en bestilling!")
+
+tildeltbuss = "tildeltBuss"
+antallPassjaserer = "antallPassasjerer"
+
+busser = [
+    {"antallSeter": 7, "antallBusser": 3, "prisPrDøgn": 1250, "kilometerPris": 90},
+    {"antallSeter": 15, "antallBusser": 3, "prisPrDøgn": 1600, "kilometerPris": 90},
+    {"antallSeter": 23, "antallBusser": 2, "prisPrDøgn": 1900, "kilometerPris": 90},
+]
+
+def finnBuss(antallPassjaserer):
+    for bruker in busser:
+        if antallPassjaserer <= "antallSeter":
+
 
 
 # printer brukerne ved hjelp av en for loop som viser aller brukerne sine fornavn for seg selv
@@ -55,11 +69,13 @@ def main():
     while run:
         valgt = meny()
         if(valgt == "1"):
-            leggeTilBruker()
+            leggeTilBestilling()
         elif(valgt == "2"):
             seBrukere()
         elif(valgt == "0"):
             run = False
+        else:
+            print("Ugyldig valg, prøv igjen!")
 
 
 # her kjører vi main funksjonen som gjør at man kan velge mellom de forskjellige funkjosnene
