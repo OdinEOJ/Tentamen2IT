@@ -6,7 +6,6 @@ def loadJson(path):
     with open(path, "r") as file:
         return json.load(file)
 
-# skrive ting til json
 def dumpJson(dumpObject, path):
     with open(path, "w") as file:
         json.dump(dumpObject, file, indent=4)
@@ -14,60 +13,70 @@ def dumpJson(dumpObject, path):
 busses = loadJson("bussbestilling/busses.json")
 brukere = loadJson("bussbestilling/brukere.json")
 
-#legge til buss
+# Legge til ny buss
 def leggeTilBuss():
     buss = {
-        "bussNavn": input("skriv inn navn på bussen: "),
+        "bussNavn": input("Skriv inn navn på bussen: "),
         "bussID": str(uuid.uuid4()),
-        "antallSeter": input("skriv antall passasjerer: "),
+        "antallSeter": int(input("Skriv antall passasjerer: ")),
         "ledig": True,
-        "pris": input("prisen på bussen: "),
-        }
+        "pris": int(input("Prisen på bussen per dag: ")),
+    }
     busses.append(buss)
     dumpJson(busses, "bussbestilling/busses.json")
+    print(f"Bussen {buss['bussNavn']} er lagt til!")
 
-
-#bestille buss
+# Legge til bestilling
 def leggeTilBestilling():
     bruker = {
-        "fornavn": input("skriv fornavnet ditt her: "),
-        "etternavn": input("skriv etternavnet ditt her: "),
-        "antallPassasjerer": input("skriv antall passasjerer: "),
-        "antallDagerLeie": input("skriv antall dager bussen skal leies: "),
-        "totalDistanse": input("skriv distanse av turen her i kilometer: "),
-        "valgtBuss": input("hvilken buss som skal kjøre: "),
-        "totalpris": valgtBuss["pris"] * "antallDagerleie" + 90 * "totalDistanse",
-        "turFullført": False, 
+        "fornavn": input("Skriv fornavnet ditt her: "),
+        "etternavn": input("Skriv etternavnet ditt her: "),
+        "antallPassasjerer": int(input("Skriv antall passasjerer: ")),
+        "antallDagerLeie": int(input("Skriv antall dager bussen skal leies: ")),
+        "totalDistanse": int(input("Skriv distanse av turen her i kilometer: ")),
+        "valgtBuss": None,
+        "totalpris": None,
+        "turFullført": False,
         "datoForBestilling": datetime.datetime.now().strftime("%c")
-        }
-    if bruker("antallPassasjerer") > busses["antallSeter"]:
-        print("nuh uh")
-    elif bruker("antallPassasjerer") <= busses["antallSeter"]:
-        print(bruker["fornavn"] + " har lagt inn en bestilling!")
-        print(bruker["totalpris"])
+    }
+
+    valgtBuss = input("Velg en buss (skriv navnet): ").lower()
+    for buss in busses:
+        if valgtBuss == buss["bussNavn"].lower():
+            if bruker["antallPassasjerer"] > buss["antallSeter"]:
+                print(f"Bussen {buss['bussNavn']} har ikke nok seter. Bestillingen ble ikke fullført.")
+                return
+
+            bruker["valgtBuss"] = buss["bussNavn"]
+            bruker["totalpris"] = int(buss["pris"]) * bruker["antallDagerLeie"] + 90 * bruker["totalDistanse"]
+            break
+    else:
+        print("Ugyldig bussvalg. Bestillingen ble ikke fullført.")
+        return
+
     brukere.append(bruker)
-    dumpJson(brukere, "Brukere/lagring.json")
+    dumpJson(brukere, "bussbestilling/brukere.json")
+    print(f"Bestilling for {bruker['fornavn']} {bruker['etternavn']} er lagt til!")
 
-
-#meny
+# Meny
 def meny():
     print("-----------Hovedmeny----------")
-    print("   1. legg til bruker")
-    print("   2. legge til bestilling")
-    print("   0. avslutt")
-    valg = input("velg fra menyen: ")
+    print("   1. Legg til ny buss")
+    print("   2. Legg til ny bestilling")
+    print("   0. Avslutt")
+    valg = input("Velg fra menyen: ")
     return valg
 
-# main gjør så jeg kan velge mellom å kjøre de forskjellige funkjonene til koden
+# Main
 def main():
     run = True
     while run:
         valgt = meny()
-        if(valgt == "1"):
+        if valgt == "1":
             leggeTilBuss()
-        elif(valgt == "2"):
+        elif valgt == "2":
             leggeTilBestilling()
-        elif(valgt == "0"):
+        elif valgt == "0":
             run = False
         else:
             print("Ugyldig valg, prøv igjen!")
