@@ -49,20 +49,62 @@ def leggeTilBestilling():
 
             bruker["valgtBuss"] = buss["bussNavn"]
             bruker["totalpris"] = int(buss["pris"]) * bruker["antallDagerLeie"] + 90 * bruker["totalDistanse"]
+            buss["ledig"] = False
             break
+
     else:
         print("Ugyldig bussvalg. Bestillingen ble ikke fullført.")
         return
 
     brukere.append(bruker)
     dumpJson(brukere, "bussbestilling/brukere.json")
+    dumpJson(busses, "bussbestilling/busses.json")
     print(f"Bestilling for {bruker['fornavn']} {bruker['etternavn']} er lagt til!")
+
+# se alle bestillinger
+def seBestillinger():
+    for bruker in brukere:
+        print(bruker["valgtBuss"])
+
+# slette bestillinger
+def sletteBestilling():
+    bussNavn = input("Navn på bussen: ").lower()
+    bussFunnet = False
+
+    for buss in busses:
+        if buss["bussNavn"].lower() == bussNavn:
+            buss["ledig"] = True
+            bussFunnet = True
+            print(f"Bussen '{buss['bussNavn']}' er nå satt som ledig.")
+            break
+
+    if not bussFunnet:
+        print("Ingen buss med det navnet ble funnet i systemet.")
+        return
+
+    bestillingFunnet = False
+    for bruker in brukere:
+        if bruker["valgtBuss"].lower() == bussNavn:
+            brukere.remove(bruker)
+            bestillingFunnet = True
+            print(f"Bestillingen for {bruker['fornavn']} {bruker['etternavn']} er slettet.")
+            break
+
+    if not bestillingFunnet:
+        print("Ingen bestillinger ble funnet for denne bussen.")
+
+
+    dumpJson(busses, "bussbestilling/busses.json")
+    dumpJson(brukere, "bussbestilling/brukere.json")
+    print("Bestillingen er fullført og slettet")
 
 # Meny
 def meny():
     print("-----------Hovedmeny----------")
     print("   1. Legg til ny buss")
     print("   2. Legg til ny bestilling")
+    print("   3. se bestillinger")
+    print("   4. fullføre bestillinger / fjerne bestillinger")
     print("   0. Avslutt")
     valg = input("Velg fra menyen: ")
     return valg
@@ -76,6 +118,10 @@ def main():
             leggeTilBuss()
         elif valgt == "2":
             leggeTilBestilling()
+        elif valgt == "3":
+            seBestillinger()
+        elif valgt == "4":
+            sletteBestilling()
         elif valgt == "0":
             run = False
         else:

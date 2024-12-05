@@ -1,0 +1,139 @@
+import json  # For å lese og skrive JSON-filer
+import uuid  # For å generere unike ID-er for busser
+import datetime  # For å få nåværende dato og tid
+
+# Funksjon for å laste inn JSON-filer
+def loadJson(path):
+    with open(path, "r") as file:  # Åpner filen i lesemodus
+        return json.load(file)  # Returnerer innholdet som et Python-objekt
+
+# Funksjon for å skrive data til JSON-filer
+def dumpJson(dumpObject, path):
+    with open(path, "w") as file:  # Åpner filen i skrivemodus
+        json.dump(dumpObject, file, indent=4)  # Skriver objektet til fil med 4 mellomrom for innrykk
+
+# Laster inn eksisterende busser og brukere fra JSON-filer
+busses = loadJson("bussbestilling/busses.json")
+brukere = loadJson("bussbestilling/brukere.json")
+
+# Funksjon for å legge til en ny buss
+def leggeTilBuss():
+    # Oppretter et nytt buss-objekt med input fra brukeren
+    buss = {
+        "bussNavn": input("Skriv inn navn på bussen: "),
+        "bussID": str(uuid.uuid4()),  # Genererer en unik ID
+        "antallSeter": int(input("Skriv antall passasjerer: ")),
+        "ledig": True,  # Markerer bussen som tilgjengelig
+        "pris": int(input("Prisen på bussen per dag: ")),  # Pris per dag
+    }
+    busses.append(buss)  # Legger bussen til listen over busser
+    dumpJson(busses, "bussbestilling/busses.json")  # Oppdaterer JSON-filen
+    print(f"Bussen {buss['bussNavn']} er lagt til!")  # Bekreftelse
+
+# Funksjon for å legge til en bestilling
+def leggeTilBestilling():
+    # Oppretter en bruker-bestilling med input fra brukeren
+    bruker = {
+        "fornavn": input("Skriv fornavnet ditt her: "),
+        "etternavn": input("Skriv etternavnet ditt her: "),
+        "antallPassasjerer": int(input("Skriv antall passasjerer: ")),
+        "antallDagerLeie": int(input("Skriv antall dager bussen skal leies: ")),
+        "totalDistanse": int(input("Skriv distanse av turen her i kilometer: ")),
+        "valgtBuss": None,  # Buss velges senere
+        "totalpris": None,  # Totalpris beregnes senere
+        "turFullført": False,  # Angir om turen er fullført
+        "datoForBestilling": datetime.datetime.now().strftime("%c")  # Nåværende dato og tid
+    }
+
+    valgtBuss = input("Velg en buss (skriv navnet): ").lower()  # Brukeren velger en buss
+    for buss in busses:
+        if valgtBuss == buss["bussNavn"].lower():  # Sjekker om bussen finnes
+            if bruker["antallPassasjerer"] > buss["antallSeter"]:  # Sjekker kapasiteten
+                print(f"Bussen {buss['bussNavn']} har ikke nok seter. Bestillingen ble ikke fullført.")
+                return  # Avslutter funksjonen hvis bussen er full
+
+            # Oppdaterer brukerens bestilling
+            bruker["valgtBuss"] = buss["bussNavn"]
+            bruker["totalpris"] = int(buss["pris"]) * bruker["antallDagerLeie"] + 90 * bruker["totalDistanse"]
+            buss["ledig"] = False  # Marker bussen som opptatt
+            break
+    else:
+        # Hvis bussen ikke finnes
+        print("Ugyldig bussvalg. Bestillingen ble ikke fullført.")
+        return
+
+    brukere.append(bruker)  # Legger brukeren til listen over bestillinger
+    dumpJson(brukere, "bussbestilling/brukere.json")  # Oppdaterer JSON-filen for brukere
+    dumpJson(busses, "bussbestilling/busses.json")  # Oppdaterer JSON-filen for busser
+    print(f"Bestilling for {bruker['fornavn']} {bruker['etternavn']} er lagt til!")  # Bekreftelse
+
+# Funksjon for å vise alle bestillinger
+def seBestillinger():
+    for bruker in brukere:  # Itererer gjennom listen av brukere
+        print(bruker["valgtBuss"])  # Skriver ut bussnavnet fra hver bestilling
+
+# Funksjon for å slette en bestilling
+def sletteBestilling():
+    bussNavn = input("Navn på bussen: ").lower()  # Brukeren angir bussnavnet
+    bussFunnet = False
+
+    # Setter bussen som ledig hvis den finnes
+    for buss in busses:
+        if buss["bussNavn"].lower() == bussNavn:
+            buss["ledig"] = True  # Marker bussen som ledig
+            bussFunnet = True
+            print(f"Bussen '{buss['bussNavn']}' er nå satt som ledig.")
+            break
+
+    if not bussFunnet:  # Hvis bussen ikke finnes
+        print("Ingen buss med det navnet ble funnet i systemet.")
+        return
+
+    # Fjerner bestillingen knyttet til bussen
+    bestillingFunnet = False
+    for bruker in brukere:
+        if bruker["valgtBuss"].lower() == bussNavn:
+            brukere.remove(bruker)  # Fjerner brukeren fra listen
+            bestillingFunnet = True
+            print(f"Bestillingen for {bruker['fornavn']} {bruker['etternavn']} er slettet.")
+            break
+
+    if not bestillingFunnet:  # Hvis ingen bestillinger er funnet
+        print("Ingen bestillinger ble funnet for denne bussen.")
+
+    # Oppdaterer JSON-filene
+    dumpJson(busses, "bussbestilling/busses.json")
+    dumpJson(brukere, "bussbestilling/brukere.json")
+    print("Bestillingen er fullført og slettet.")
+
+# Funksjon for hovedmenyen
+def meny():
+    print("-----------Hovedmeny----------")
+    print("   1. Legg til ny buss")
+    print("   2. Legg til ny bestilling")
+    print("   3. se bestillinger")
+    print("   4. fullføre bestillinger / fjerne bestillinger")
+    print("   0. Avslutt")
+    valg = input("Velg fra menyen: ")  # Brukeren velger et alternativ
+    return valg
+
+# Hovedprogram
+def main():
+    run = True
+    while run:  # Looper så lenge programmet kjører
+        valgt = meny()  # Viser menyen og tar imot valg
+        if valgt == "1":
+            leggeTilBuss()  # Legger til en ny buss
+        elif valgt == "2":
+            leggeTilBestilling()  # Legger til en ny bestilling
+        elif valgt == "3":
+            seBestillinger()  # Viser eksisterende bestillinger
+        elif valgt == "4":
+            sletteBestilling()  # Sletter en bestilling
+        elif valgt == "0":
+            run = False  # Stopper programmet
+        else:
+            print("Ugyldig valg, prøv igjen!")  # Håndterer ugyldige valg
+
+# Starter hovedprogrammet
+main()
