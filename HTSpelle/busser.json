@@ -2,7 +2,7 @@
     {
         "bussID": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
         "antallSeter": 7,
-        "ledig": true,
+        "ledig": false,
         "pris": 1250
     },
     {

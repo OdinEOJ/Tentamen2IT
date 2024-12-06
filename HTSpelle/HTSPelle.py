@@ -7,13 +7,13 @@ def loadJson(path):
     with open(path, "r") as file:  # Åpner filen i lesemodus, dette er pga "r"
         return json.load(file)  # Returnerer innholdet som et Python-objekt
 
-# Funksjon for å skrive data til JSON-filer
+# Funksjon for å skrive data til JSON filer
 def dumpJson(dumpObject, path):
     with open(path, "w") as file:  # Åpner filen i skrivemodus, dette er pga "w"
-        json.dump(dumpObject, file, indent=4)  # Skriver objektet til fil med 4 mellomrom for innrykk
+        json.dump(dumpObject, file, indent=4)  # Skriver objeket til fil med 4 mellomrom for innrykk
 
 
-# Laster inn eksisterende busser og bestillinger fra JSON-filer
+# Laster inn eksisterende busser og bestillinger lister fra JSONfiler
 busser = loadJson("HTSpelle/busser.json")
 bestillinger = loadJson("HTSpelle/bestillinger.json")
 
@@ -26,16 +26,16 @@ def mellomrom(num):
         print("")
 
 # 2. bestillingsId bør være en autogenerert id, ikke en id vi skirver inn selv            OK
-# Her bruker vi uuid som lager randome ider for oss (se linje 43)
+# Her bruker vi uuid som lager randome ider for oss (se linje 59)
 
-# 3. Vi bør heller ikke skrive inn id for tildelt buss selv. kunden bør automatisk få tildelt en ledig buss som passer antall passasjerer.
+# 3. Vi bør heller ikke skrive inn id for tildelt buss selv. kunden bør automatisk få tildelt en ledig buss som passer antall passasjerer.   fikk desverre ikke tid.
 #    Husk at vi også må hondter sitvasjoner der det ikke er ledige busser som passer antall passasjerer
 
 # 4. koden krasjer når vi prøver å legge sammen totalPris, dette må rettes.            OK
 
-# 5. er det noe vi kan gjøre for å hondtere eventuelle feil som oppstår hvis bruker skriver inn ugyldige verdier i input?          OK
+# 5. er det noe vi kan gjøre for å hondtere eventuelle feil som oppstår hvis bruker skriver inn ugyldige verdier i input?          OK  (try og except)
 
-# 6. Det mangler dato for når bestillingen ble opprettet.        OK
+# 6. Det mangler dato for når bestillingen ble opprettet.        OK   (datetime)
 
 
 def bestill_buss():
@@ -69,11 +69,14 @@ def bestill_buss():
     for buss in busser:
         if buss == tildeltBuss:
             bestillinger["tildeltbuss"] = buss["bussID"]
+            
 
     nyBestilling["totalPris"] = int(buss["pris"]) * nyBestilling["dager"] + 90 * nyBestilling["distanse"]
+    
 
     bestillinger.append(nyBestilling)
     dumpJson(bestillinger, "HTSpelle/bestillinger.json")
+    dumpJson(busser, "HTSpelle/busser.json")
     mellomrom(4)
     print("Gratulerer bestillingen ble fullført, hva ønsker du å gjøre nå?")
     mellomrom(1)
@@ -93,7 +96,7 @@ def meny():
 def list_ut_bestillinger():
     print("Her er alle allerede bestillte turer: ")
     for bestilling in bestillinger:
-        print(bestilling["bestillingsId"])
+        print(f"{bestilling['kontaktPerson']}:  {bestilling['bestillingsId']}")
 
 # Denne funksjonen må fullføres, det beste er om man bare kan skrive inn navn på kontaktpersonen som man ønsker å avslutte turen til
 def avslutt_tur():
@@ -103,7 +106,7 @@ def avslutt_tur():
     for buss in busser:
         kontaktPerson = buss["bussID"]
         if buss["bussID"].lower() == kontaktPerson:
-            buss["ledig"] = True  # Marker bussen som ledig
+            buss["ledig"] = True
             bussFunnet = True
             print(f"Bussen '{buss['bussID']}' er nå satt som ledig.")
             break
@@ -111,10 +114,12 @@ def avslutt_tur():
     if not bussFunnet:
         print("Ingen med det navnet ble funnet i systemet.")
         return
+    
+    # det over fungerer, trengte lengere tid
 
-    # Fjerner bestillingen knyttet til bussen
     bestillingFunnet = False
-    for bestilling in bestillinger:
+    for bestilling in bestillinger:     # vil ikke fungere fordi jeg åpner bestillinger og den har ikke tilgang på bussID
+        kontaktPerson = buss["bussID"]
         if bestilling["kontaktPerson"].lower() == kontaktPerson:
             bestillinger.remove(bestilling)
             bestillingFunnet = True

@@ -1,1 +1,32 @@
-[]
+[
+    {
+        "bestillingsId": "b3e19eb4-b039-4283-bf5b-4c2d257459cf",
+        "bussId": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
+        "kontaktPerson": "Odin",
+        "passasjerer": 7,
+        "dager": 5,
+        "distanse": 234,
+        "totalPris": 30560,
+        "datoForBestilling": "Fri Dec  6 11:09:55 2024"
+    },
+    {
+        "bestillingsId": "0ad62bbf-eedc-4944-903f-290ece633a37",
+        "bussId": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
+        "kontaktPerson": "Odin",
+        "passasjerer": 5,
+        "dager": 5,
+        "distanse": 345345,
+        "totalPris": 31090550,
+        "datoForBestilling": "Fri Dec  6 11:11:22 2024"
+    },
+    {
+        "bestillingsId": "ce1e3337-780b-4c3b-beb8-2964584c6df6",
+        "bussId": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
+        "kontaktPerson": "Odin",
+        "passasjerer": 45,
+        "dager": 345,
+        "distanse": 345,
+        "totalPris": 686550,
+        "datoForBestilling": "Fri Dec  6 11:12:27 2024"
+    }
+]
