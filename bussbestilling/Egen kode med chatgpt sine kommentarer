@@ -57,10 +57,10 @@ def leggeTilBestilling():
             bruker["totalpris"] = int(buss["pris"]) * bruker["antallDagerLeie"] + 90 * bruker["totalDistanse"]
             buss["ledig"] = False  # Marker bussen som opptatt
             break
-    else:
-        # Hvis bussen ikke finnes
-        print("Ugyldig bussvalg. Bestillingen ble ikke fullført.")
-        return
+        else:
+            # Hvis bussen ikke finnes
+            print("Ugyldig bussvalg. Bestillingen ble ikke fullført.")
+            return
 
     brukere.append(bruker)  # Legger brukeren til listen over bestillinger
     dumpJson(brukere, "bussbestilling/brukere.json")  # Oppdaterer JSON-filen for brukere

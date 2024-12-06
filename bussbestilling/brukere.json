@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "fornavn": "Odin",
+        "etternavn": "Johansen",
+        "antallPassasjerer": 6,
+        "antallDagerLeie": 4,
+        "totalDistanse": 100,
+        "valgtBuss": "Albert",
+        "totalpris": 14000,
+        "turFullf\u00f8rt": false,
+        "datoForBestilling": "Fri Dec  6 08:29:20 2024"
+    }
+]

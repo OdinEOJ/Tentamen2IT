@@ -1,0 +1,50 @@
+[
+    {
+        "bussID": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
+        "antallSeter": 7,
+        "ledig": true,
+        "pris": 1250
+    },
+    {
+        "bussID": "6de08d48-6706-40fa-8c25-21d20cec82a1",
+        "antallSeter": 7,
+        "ledig": true,
+        "pris": 1250
+    },
+    {
+        "bussID": "eca8500f-742f-41a4-85f0-e21cae51085c",
+        "antallSeter": 7,
+        "ledig": true,
+        "pris": 1250
+    },
+    {
+        "bussID": "a41a0095-98ac-42b5-a1e3-99919e06fa6b",
+        "antallSeter": 15,
+        "ledig": true,
+        "pris": 1600
+    },
+    {
+        "bussID": "c6a8a2be-8be1-4cf0-84ca-d7579befa45f",
+        "antallSeter": 15,
+        "ledig": true,
+        "pris": 1600
+    },
+    {
+        "bussID": "404348d2-8c10-44f0-b235-9080584d92a4",
+        "antallSeter": 15,
+        "ledig": true,
+        "pris": 1600
+    },
+    {
+        "bussID": "6a4acbee-d69b-4249-b3fb-94e8dfd9003b",
+        "antallSeter": 23,
+        "ledig": true,
+        "pris": 1900
+    },
+    {
+        "bussID": "d0cef6b8-b44f-4fe1-9236-c320853a7db2",
+        "antallSeter": 23,
+        "ledig": true,
+        "pris": 1900
+    }
+]

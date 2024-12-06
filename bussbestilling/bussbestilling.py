@@ -35,6 +35,7 @@ def leggeTilBestilling():
         "antallDagerLeie": int(input("Skriv antall dager bussen skal leies: ")),
         "totalDistanse": int(input("Skriv distanse av turen her i kilometer: ")),
         "valgtBuss": None,
+        "bussID": busses["bussID"],
         "totalpris": None,
         "turFullført": False,
         "datoForBestilling": datetime.datetime.now().strftime("%c")
