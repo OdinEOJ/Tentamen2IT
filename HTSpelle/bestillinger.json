@@ -28,5 +28,15 @@
         "distanse": 345,
         "totalPris": 686550,
         "datoForBestilling": "Fri Dec  6 11:12:27 2024"
+    },
+    {
+        "bestillingsId": "40f943ff-368b-4618-a96f-283026bc9afb",
+        "bussId": "f73ff8be-6c05-4ec8-b929-5ae70a6ebf78",
+        "kontaktPerson": "Erlend",
+        "passasjerer": 6,
+        "dager": 56,
+        "distanse": 1000,
+        "totalPris": 196400,
+        "datoForBestilling": "Fri Dec  6 12:26:11 2024"
     }
 ]
