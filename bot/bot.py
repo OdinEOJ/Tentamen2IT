@@ -5,7 +5,6 @@ import datetime
 from discord.utils import get
 import random
 import os
-import time
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -14,15 +13,16 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 tall = random.randint(1,5)
 
 CHANNEL_ID = 1335885165355864148
+TARGET_USER_ID = 648178003628654612
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
-    send_hey.start()
+    hey.start()
 
 
 @tasks.loop(seconds=60)
-async def send_hey():
+async def hey():
     now = datetime.datetime.now()
     if now.hour == 8 and now.minute == 20:
         channel = bot.get_channel(CHANNEL_ID)
@@ -36,7 +36,7 @@ async def money(ctx):
         await channel.send("Get yo money up not yo funny up👹💸👹💸👹")
 
 @bot.command()
-async def sendNudes(ctx):
+async def randimg(ctx):
     folder_path = "bot\\bilder"
     
     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png', '.jpeg', '.gif'))]
@@ -46,6 +46,11 @@ async def sendNudes(ctx):
     file_path = os.path.join(folder_path, selected_image)
     file = discord.File(file_path)
     await ctx.send(file=file)
+
+@bot.event
+async def on_message(message):
+    if message.author.id == TARGET_USER_ID and not message.author.bot:
+        await message.channel.send("Omagawd, mobbing iris...")
 
 
 @bot.command()
@@ -80,5 +85,5 @@ async def weather(ctx):
         await ctx.send(f"❌ Feil {response.status_code}: Kunne ikke hente været akkurat nå. Prøv igjen senere! 😭")
     
 
-TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.G5rvjA.fLNqV2zfhS8FKKUltOXJLlFZ0nHUjOpPKiBZzw"
+TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.Gd1qGv.m0oCKspBbXCyk0FMkOKgdALkDgouWhgpWP0Ge0"
 bot.run(TOKEN)
