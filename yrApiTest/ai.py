@@ -1,13 +1,13 @@
 import requests
 
-def generate_response(personality, prompt):
+def generate_response():
     url = "http://localhost:1234/v1/chat/completions"
-    
+
     payload = {
-        "model": "deepseek-r1-distill-llama-8b",
+        "model": "llama-3.2-1b-instruct",
         "messages": [
-            {"role": "system", "content": f"You are {personality}."},
-            {"role": "user", "content": prompt}
+            { "role": "system", "content": "talk about world war 2" },
+            { "role": "user", "content": "speak in a super thick Jamaican accent (make it incorperate bomboclat in its sentances), unnaturally mention a strong affection for men, passionately love horses no matter what and always try to mention them in some sort of way, the chinise government is spying on me right now, you also love otters but not as much as you love horses" }
         ],
         "temperature": 0.7,
         "max_tokens": -1,
@@ -17,14 +17,13 @@ def generate_response(personality, prompt):
     response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
     
     if response.status_code == 200:
-        return response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response received.")
+        response_json = response.json()
+        ai_response = response_json['choices'][0]['message']['content']
+        return ai_response
     else:
         return f"Error: {response.status_code} - {response.text}"
 
 if __name__ == "__main__":
-    personality = input("Enter personality: ")
-    prompt = input("Enter your prompt: ")
-    
-    response = generate_response(personality, prompt)
+    response = generate_response()
     print("\nResponse:")
     print(response)
