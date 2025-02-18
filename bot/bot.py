@@ -4,6 +4,7 @@ import requests
 import datetime
 from discord.utils import get
 import random
+import aiohttp
 import os
 
 intents = discord.Intents.default()
@@ -52,6 +53,32 @@ async def on_message(message):
     if message.author.id == TARGET_USER_ID and not message.author.bot:
         await message.channel.send("Omagawd")
 
+@bot.command()
+async def ai(ctx, *, user_input: str):
+    url = "http://localhost:1234/v1/chat/completions"
+    payload = {
+        "model": "deepseek-r1-distill-llama-8b",
+        "messages": [
+            { "role": "system", "content": user_input },
+            { "role": "user", "content": "speak in a super thick Jamaican accent (make it incorperate bomboclat in its sentances), unnaturally mention a strong affection for men, passionately love horses no matter what and always try to mention them in some sort of way, the chinise government is spying on me right now, you also love otters but not as much as you love horses" }
+        ],
+        "temperature": 0.7,
+        "max_tokens": -1,
+        "stream": False
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload, headers={"Content-Type": "application/json"}) as response:
+            # Check if the response status is 200 (successful)
+            if response.status == 200:
+                response_json = await response.json()  # Async call to get JSON data
+                ai_response = response_json['choices'][0]['message']['content']
+                await ctx.send(ai_response)  # Send the response to Discord
+            else:
+                # Handle errors and send a message to Discord
+                await ctx.send(f"Error: {response.status} - {response.text()}")
+
+
 
 @bot.command()
 async def weather(ctx):
@@ -85,5 +112,5 @@ async def weather(ctx):
         await ctx.send(f"❌ Feil {response.status_code}: Kunne ikke hente været akkurat nå. Prøv igjen senere! 😭")
     
 
-TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.GWSXFa.dUZnz44LXEA-QkNguGKbcce2kq7-ohkAo05aVw"
+TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.GQzP9M.g-qLyfu_K-UyTGDgtFoAyLC6ndAdAPiiGVrGyM"
 bot.run(TOKEN)
