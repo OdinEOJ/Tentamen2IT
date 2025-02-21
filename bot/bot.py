@@ -112,5 +112,5 @@ async def weather(ctx):
         await ctx.send(f"❌ Feil {response.status_code}: Kunne ikke hente været akkurat nå. Prøv igjen senere! 😭")
     
 
-TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.GQzP9M.g-qLyfu_K-UyTGDgtFoAyLC6ndAdAPiiGVrGyM"
+TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.GlV_vb.9R9ss2_Lj_yVmdkADgnu8lip0WTmI3cyf5Gu5o"
 bot.run(TOKEN)
