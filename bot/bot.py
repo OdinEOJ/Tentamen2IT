@@ -31,14 +31,8 @@ async def hey():
             await channel.send(f"@everyone God morn cock suckers mother fuckers")
 
 @bot.command()
-async def money(ctx):
-    channel = bot.get_channel(CHANNEL_ID)
-    if channel:
-        await channel.send("Get yo money up not yo funny up👹💸👹💸👹")
-
-@bot.command()
 async def randimg(ctx):
-    folder_path = "bot\\bilder"
+    folder_path = "bot/bilder"
     
     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png', '.jpeg', '.gif'))]
     
@@ -112,5 +106,5 @@ async def weather(ctx):
         await ctx.send(f"❌ Feil {response.status_code}: Kunne ikke hente været akkurat nå. Prøv igjen senere! 😭")
     
 
-TOKEN = "MTMzNTkzODUzNjk1MTY0NDIxMA.GlV_vb.9R9ss2_Lj_yVmdkADgnu8lip0WTmI3cyf5Gu5o"
+TOKEN = ""
 bot.run(TOKEN)
