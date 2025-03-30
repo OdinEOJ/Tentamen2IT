@@ -1,9 +1,11 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import uuid
-import json
+import random
 
-cred = credentials.Certificate("quizmaskin/quizmaskin69-firebase-adminsdk-fbsvc-3673d7c29e.json")
+########################################################################################
+
+cred = credentials.Certificate("quizmaskin/quizmaskin69-firebase-adminsdk-fbsvc-b15bac77b6.json")
 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -12,60 +14,100 @@ def mellomrom(num):
     for i in range(num):
         print("")
 
-
 docID = str(uuid.uuid4())
 
+########################################################################################
+
+def startQuiz():
+    highscore = 0
+
+    print("1. Lett")
+    print("2. Medium")
+    print("3. Vanskelig")
+    vanskelighetsgradSvar = input("Velg vanskelighetsgrad du vil spille på: ").strip()
+
+    vanskelighetsgradValg = {
+        "1": "Lett",
+        "2": "Medium",
+        "3": "Vanskelig"
+    }
+
+    vanskelighetsgrad = vanskelighetsgradValg.get(vanskelighetsgradSvar)
+    if not vanskelighetsgrad:
+        print("Ugyldig valg av vanskelighetsgrad.")
+        return
+
+    print("1. Sport")
+    print("2. Generell")
+    print("3. Spesiell")
+
+    temaValg = {
+        "1": "sport",
+        "2": "generell",
+        "3": "rarespørsmål"
+    }
+
+    temaSvar = input("Velg et tema for quiz: ").strip()
+    tema = temaValg.get(temaSvar)
+    if not tema:
+        print("Ugyldig valg av tema.")
+        return
+
+    for i in range(5):  # Kjør quizen 5 ganger
+
+        try:
+            print(f"Henter spørsmål fra kategori: {tema}")  # Debugging-print
+            dokumenter = list(db.collection(tema).stream())
+            
+            spørsmålsliste = [doc.to_dict() for doc in dokumenter if doc.to_dict().get("vanskelighetsgrad") == vanskelighetsgrad]
+            
+            if not spørsmålsliste:
+                print("Fant ingen spørsmål med valgt vanskelighetsgrad og tema.")
+                continue
+
+            # Velg et tilfeldig spørsmål fra listen
+            spørsmål = random.choice(spørsmålsliste)
+
+            # Vis spørsmålet og svaralternativer
+            print("Spørsmål:", spørsmål['spørsmål'])
+            
+            svaralternativer = spørsmål.get('svar', None)  
+
+            if isinstance(svaralternativer, dict):  # Bare loop hvis det faktisk er en ordbok
+                for key, value in svaralternativer.items():
+                    print(f"{key.upper()}: {value}")
+                svar = input("Ditt svar (a, b, c, d): ").strip().lower()
+            else:
+                svar = input("Skriv inn svaret ditt: ").strip().lower()
+
+            if svar == spørsmål['riktig_svar']:
+                print("Rett! +10 poeng")
+                highscore += 10
+            else:
+                if isinstance(svaralternativer, dict):
+                    print(f"Feil, riktig svar var: {spørsmål['riktig_svar'].upper()} Eller {svaralternativer.get(spørsmål['riktig_svar'], '')}")
+                else:
+                    print(f"Feil, riktig svar var: {spørsmål['riktig_svar'].upper()}")
+        
+        except Exception as e:
+            print(f"En feil skjedde: {e}. Prøv på nytt.")
+            continue
+
+    print(f"Quizen er ferdig! Din høyeste poengsum var: {highscore}")
+    HighscoreNavn = input("Skriv inn navn så vi kan lagre highscore: ")
 
 
-def leggTilEtSpørsmål():
-    collection = str(input("Hvilken kategori er dette spørsmålet? (rarespørsmål, sport, generellespørsmål, MÅ SKRIVES HELT LIKT DU SER FØR!): "))
-    doc_ref = db.collection(collection).document(docID)
-    doc_ref.set({
-        'spørsmål': input("spørsmålet: "),
-        'kategori': input("kategori (rarespørsmål, sport, generellespørsmål): "),
-        'svar': input("svaret (a,b,c,d eller hvis det er et vanskelighets grad vanskelig skriv inn svaret): "),
-        'vanskelighetsgrad': input("vanskelighetsgrad (lett, middels, vanskelig): "),
-    })
-    mellomrom(1)
-    print(f"Spørsmål med ID: {docID} er lagt til!")
-    mellomrom(2)
-
-def load_json(path):
-    with open(path, "r", encoding="utf-8") as file:
-        return json.load(file)
-
-questions = load_json("quizmaskin/sportspørsmål.json")
-
-# Funksjon for å sende spørsmålene til Firebase Firestore
-def sendTilFirebase(questions):
-    for question in questions:
-        doc_id = str(uuid.uuid4())  # Unik ID for hvert spørsmål
-        db.collection("sport").document(doc_id).set(question)
-sendTilFirebase()
-
-
-def printUtSpørsmålene():
-    collection = input("Hvilken collection er dette spørsmålet i?: ")
-    spørsmål_id = input("Legg til ID for å se spørsmålet: ")
-    doc_ref = db.collection(collection).document(spørsmål_id)
-    doc = doc_ref.get()
-    if doc.exists:
-        mellomrom(1)
-        print(doc.id)
-        print(doc.to_dict())
-        mellomrom(1)
-    else:
-        print("Fant ikke dokumentet.")
+########################################################################################
 
 def printUtAlleSpørsmålene():
-    collection = input("Hvilken collection er dette spørsmålet i?: ")
+    collection = input("Hvilken kategori vil du liste ut spørsmål fra?: ")
     users = db.collection(collection).stream()
 
     for user in users:
         mellomrom(1)
-        print(user.id)
-        print(user.to_dict())
+        print(f"Dokument-ID: {user.id}")
         mellomrom(1)
+
 
 
 def slettEtSpørsmål():
@@ -83,29 +125,6 @@ def slettEtSpørsmål():
     if deleted_count == False:
         print(f"Finner ingen spørsmål med: '{spørsmål_grrr}'")
 
-def rediger():
-    collection = input("Hvilken collection er brukeren du vil endre i?: ")
-    first_name = input("Hvilken bruker vil du slette?: ")
-    
-    if collection == "Lærere":
-        doc_ref_Lærere = db.collection("Lærere").document(first_name)
-        firstName = input("fornavn: ")
-        lastName = input("etternavn: ")
-        age = input("alder: ")
-
-        fag = []
-        while True:
-            fag.append(input("Legg til fag: "))
-            flereFag = input("Ønsker du å legge til flere fag? ja / nei: ")
-            if(flereFag == "nei"):
-                break
-
-        doc_ref_Lærere.update({
-        "firstName": firstName,
-        "lastName": lastName,
-        "fag": fag,
-        "age": age
-        })
 
 def rediger():
     collection = input("Hvilken collection er spørsmålet du vil endre i?: ")
@@ -145,9 +164,10 @@ def adminpassord():
     passord = input("Skriv inn admin passord: ")
     
     if passord == password:
-        admin()
-
+        adminValg()
     else:
+        print("Feil passord!")
+        mellomrom(1)
         meny()
 
 def admin():
@@ -162,18 +182,18 @@ def admin():
     return valg
     
 
-def second():
+def adminValg():
     run = True
     while run:
         valgt = admin()
         if valgt == "1":
-            leggTilEtSpørsmål()
+            pass
         elif valgt == "2":
             slettEtSpørsmål()
         elif valgt == "3":
             valgt = rediger()
         elif valgt == "4":
-            valgt = printUtSpørsmålene()
+            pass
         elif valgt == "5":
             valgt = printUtAlleSpørsmålene()
         elif valgt == "0":
@@ -184,9 +204,9 @@ def main():
     while run:
         valgt = meny()
         if valgt == "1":
-            leggTilEtSpørsmål()
+            startQuiz()
         elif valgt == "2":
-            highscore()
+            pass
         elif valgt == "3":
             valgt = adminpassord()
         elif valgt == "0":
