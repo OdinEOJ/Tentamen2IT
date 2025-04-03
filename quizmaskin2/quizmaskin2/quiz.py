@@ -1,26 +1,29 @@
+######################################################################################## import av alle funksjonene som ikke kommer standard i python
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 import uuid
 import random
 
-########################################################################################
+######################################################################################## koble til databasen og noen universale variabler og funksjoner
 
 try:
-    cred = credentials.Certificate("quizmaskin2/quizmaskin2/quizmaskin69-firebase-adminsdk-fbsvc-a628be7fd3.json")
+    cred = credentials.Certificate("quizmaskin2/quizmaskin69-firebase-adminsdk-fbsvc-9e07390b6a.json")
     firebase_admin.initialize_app(cred)
     db = firestore.client()
-except Exception as e:
-    print("Feil ved tilkobling til Firebase:", e)
-    exit()
+    print("Koblet til databasen!")
+except:
+    print("Feil ved tilkobling til Firebase!")
+    run = False
 
 
-def mellomrom(num):
+def mellomrom(num): #formatere output sånn at programmet blir lettere å lese
     for i in range(num):
         print("")
 
 docID = str(uuid.uuid4())
 
-########################################################################################
+######################################################################################## funksjon for å starte quizen
 
 def startQuiz():
 
@@ -95,7 +98,7 @@ def startQuiz():
                     print(f"Feil, riktig svar var: {spørsmål['riktig_svar'].upper()}")
     
     except:
-        print(f"En feil skjedde, prøv på nytt.")
+        print(f"En feil skjede, igjen.")
 
     print(f"Quizen er ferdig! Din høyeste poengsum var: {highscore}")
     highscoreNavn = str(input("Skriv inn navn så vi kan lagre highscore: ").lower())
@@ -106,7 +109,7 @@ def startQuiz():
         'highscore': highscore
     })
 
-########################################################################################
+######################################################################################## printe ut highscore (bare de 5 beste scorene)
 
 def printTopHighscores():
     print("Topp 5 highscores:")
@@ -125,86 +128,79 @@ def printTopHighscores():
     for index, (name, score) in enumerate(top_scores, start=1):
         print(f"{index}. {name}: {score} poeng")
 
-########################################################################################
+######################################################################################## slett et spørsmål (fungerer ikke)
 
 def slettEtSpørsmål():
-    collection = input("Hvilken collection er dette spørsmålet i?: ")
-    spørsmål_grrr = input("Hvilket spørsmål vil du slette?: ")
+    collection = input("Hvilken collection er dette spørsmålet i?: ").strip()
+    spørsmål_grrr = input("Hvilket spørsmål vil du slette?: ").strip()
 
-    print(f"Spørsmål som skal slettes: {spørsmål_grrr}")  # Debugging print
+    print(f"Spørsmål som skal slettes: {spørsmål_grrr}")
     
     try:
-        # Query for all documents that match the question text
-        users = db.collection(collection).where('spørsmål', '==', spørsmål_grrr).stream()
-        deleted_count = 0  # Initialize a counter to track the number of deleted questions
+        users = db.collection(collection).filter('spørsmål', '==', spørsmål_grrr).stream()
 
+        deleted_count = 0
         for user in users:
-            # Delete the question (document) if found
             db.collection(collection).document(user.id).delete()
             print(f"Slettet spørsmålet: '{spørsmål_grrr}' med ID: {user.id}")
-            deleted_count += 1  # Increment the counter for each deleted document
+            deleted_count += 1
 
-        # If no question was deleted, notify the user
         if deleted_count == 0:
-            print(f"Finner ingen spørsmål med: '{spørsmål_grrr}'")
-        else:
-            print(f"Totalt {deleted_count} spørsmål ble slettet.")
-    except Exception as e:
-        print(f"En feil oppstod: {e}")
+            print(f"Ingen spørsmål funnet med teksten: '{spørsmål_grrr}'.")
 
-########################################################################################
+    except:
+        print(f"En feil oppstod!")
+
+######################################################################################## redigering av et spørsmål
 
 def rediger():
     collection = input("Hvilken collection er spørsmålet du vil endre i?: ")
     user_id = input("Hvilket spørsmål vil du redigere?: ")
     
     doc_ref = db.collection(collection).document(user_id)
-    if not doc_ref.get().exists:
+    doc = doc_ref.get()
+
+    if not doc.exists:
         print(f"Spørsmålet med ID {user_id} finnes ikke.")
         return
 
-    # Fetch the current data from Firestore
-    data = doc_ref.get().to_dict()
+    data = doc.to_dict()
     
-    # Get the question, category, and difficulty with default values
-    spørsmål = input(f"Spørsmål (nåværende: {data['spørsmål']}): ") or data['spørsmål']
-    kategori = input(f"Kategori (nåværende: {data['kategori']}): ") or data['kategori']
-    
-    vanskelighetsgrad = input(f"Vanskelighetsgrad (nåværende: {data['vanskelighetsgrad']}): ") or data['vanskelighetsgrad']
-    
-    # Safely get the 'svar' field, defaulting to an empty dictionary if it doesn't exist
+    # Sikkerhetskopi av eksisterende verdier
+    spørsmål = input(f"Spørsmål (nåværende: {data.get('spørsmål', 'Ingen')}): ") or data.get('spørsmål', 'Ingen')
+    kategori = input(f"Kategori (nåværende: {data.get('kategori', 'Ingen')}): ") or data.get('kategori', 'Ingen')
+    vanskelighetsgrad = input(f"Vanskelighetsgrad (nåværende: {data.get('vanskelighetsgrad', 'Ingen')}): ") or data.get('vanskelighetsgrad', 'Ingen')
+
+    # Hent eksisterende svar eller en tom dictionary
     svar = data.get('svar', {})
 
-    # If the difficulty level is 'Lett' or 'Medium', we'll handle the answers accordingly
-    if vanskelighetsgrad in ['Lett', 'Medium']:  # For Lett and Medium difficulty levels
-        for option in ['a', 'b', 'c', 'd']:  # Assuming 4 answer options
-            answer = input(f"Answer for {option.upper()} (nåværende: {svar.get(option, '')}): ") or svar.get(option, '')
-            svar[option] = answer
-        
-        riktig_svar = input(f"Riktig svar (nåværende: {data['riktig_svar']}): ") or data['riktig_svar']
+    if isinstance(svar, dict):  # Bare oppdater svar hvis det er en dict
+        for option in ['a', 'b', 'c', 'd']:  
+            svar[option] = input(f"Answer for {option.upper()} (nåværende: {svar.get(option, '')}): ") or svar.get(option, '')
 
-    elif vanskelighetsgrad == "Vanskelig":  # For "Vanskelig" difficulty level
-        for option in ['a', 'b', 'c', 'd']:  # Assuming 4 answer options
-            answer = input(f"Answer for {option.upper()} (nåværende: {svar.get(option, '')}): ") or svar.get(option, '')
-            svar[option] = answer
+    riktig_svar = input(f"Riktig svar (nåværende: {data.get('riktig_svar', 'Ingen')}): ") or data.get('riktig_svar', 'Ingen')
 
-        # For "Vanskelig" difficulty, we need to gather an explanation for the correct answer
-        riktigsvar = input(f"Riktig svar (nåværende: {data['riktig_svar']}): ") or data['riktig_svar']
-        forklaring = input(f"Forklaring på riktig svar (valgfritt): ")
+    forklaring = ""
+    if vanskelighetsgrad == "Vanskelig":
+        forklaring = input(f"Forklaring på riktig svar (valgfritt, nåværende: {data.get('forklaring', '')}): ") or data.get('forklaring', '')
 
-    # Now, update the Firestore document with the new data
-    doc_ref.update({
+    # Oppdater Firestore
+    oppdatert_data = {
         "spørsmål": spørsmål,
         "kategori": kategori,
         "svar": svar,
-        "riktig_svar": riktigsvar,  # Depending on difficulty, this will vary
-        "vanskelighetsgrad": vanskelighetsgrad,
-        "forklaring": forklaring if vanskelighetsgrad == "Vanskelig" else None
-    })
+        "riktig_svar": riktig_svar,
+        "vanskelighetsgrad": vanskelighetsgrad
+    }
+
+    if vanskelighetsgrad == "Vanskelig":
+        oppdatert_data["forklaring"] = forklaring
+
+    doc_ref.update(oppdatert_data)
     
     print("Spørsmålet er oppdatert!")
 
-########################################################################################
+######################################################################################## logge på admin menyen sånn at man kan gjøre administrative oppgaver fra programmet
 
 def adminpassord(): #admin sånn at man kan skifte på ting man normalt ikke kunne ha gjort
     password = "6969" #passordet
@@ -238,7 +234,7 @@ def admin(): #admin meny
     return valg
     
 
-def adminValg():
+def adminValg(): #utvalg av admin funksjoner
     run = True
     while run:
         valgt = admin()
@@ -252,7 +248,7 @@ def adminValg():
             run = False
 
 
-def main():
+def main(): #utvalg av funksjoner
     run = True
     while run:
         valgt = meny()
@@ -266,3 +262,54 @@ def main():
             run = False
         
 main()
+
+
+#peudokode
+# --------------------------------------------
+# HOVEDMENY
+# --------------------------------------------
+# 1. Vis menyvalg:
+#    - 1: Start quiz
+#    - 2: Se highscores
+#    - 3: Admin-meny
+#    - 0: Avslutt
+# 2. Brukeren velger et alternativ
+# 3. Kjør tilsvarende funksjon
+
+# --------------------------------------------
+# START QUIZ
+# --------------------------------------------
+# 1. Be brukeren velge vanskelighetsgrad
+# 2. Be brukeren velge et tema
+# 3. Hent spørsmål fra databasen basert på valgene
+# 4. Hvis det er nok spørsmål, velg 5 tilfeldige
+# 5. For hvert spørsmål:
+#    - Vis spørsmålet og eventuelle svaralternativer
+#    - Brukeren skriver inn svaret
+#    - Sjekk om svaret er riktig og oppdater poengsum
+# 6. Etter quizen, vis sluttresultatet
+# 7. Be brukeren skrive inn navn for å lagre poengsummen
+
+# --------------------------------------------
+# VIS HIGHSCORES
+# --------------------------------------------
+# 1. Hent de 5 beste highscore-oppføringene fra databasen
+# 2. Skriv ut resultatene i synkende rekkefølge
+
+# --------------------------------------------
+# ADMIN-MENY
+# --------------------------------------------
+# 1. Vis menyvalg:
+#    - 1: Slett et spørsmål
+#    - 2: Vis highscores
+#    - 0: Tilbake
+# 2. Brukeren velger et alternativ
+# 3. Utfør tilsvarende handling
+
+# --------------------------------------------
+# SLETT SPØRSMÅL
+# --------------------------------------------
+# 1. Be brukeren oppgi kategori og spørsmålstekst
+# 2. Søk i databasen etter spørsmålet
+# 3. Hvis funnet, slett det
+# 4. Bekreft slettingen eller gi feilmelding
