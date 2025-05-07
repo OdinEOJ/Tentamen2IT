@@ -5,10 +5,14 @@ import random
 
 ########################################################################################
 
-cred = credentials.Certificate("quizmaskin/quizmaskin69-firebase-adminsdk-fbsvc-b15bac77b6.json")
+try:
+    cred = credentials.Certificate("/Users/odinovre-johansen/Documents/GitHub/Tentamen2IT/quizmaskin/quizmaskin69-firebase-adminsdk-fbsvc-b15bac77b6.json")
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+except Exception as e:
+    print("Feil ved tilkobling til Firebase:", e)
+    exit()
 
-firebase_admin.initialize_app(cred)
-db = firestore.client()
 
 def mellomrom(num):
     for i in range(num):
@@ -89,8 +93,8 @@ def startQuiz():
                 else:
                     print(f"Feil, riktig svar var: {spørsmål['riktig_svar'].upper()}")
         
-        except Exception as e:
-            print(f"En feil skjedde: {e}. Prøv på nytt.")
+        except:
+            print(f"En feil skjedde, prøv på nytt.")
             continue
 
     print(f"Quizen er ferdig! Din høyeste poengsum var: {highscore}")
@@ -104,8 +108,10 @@ def printUtAlleSpørsmålene():
     users = db.collection(collection).stream()
 
     for user in users:
+        data = user.to_dict()
         mellomrom(1)
         print(f"Dokument-ID: {user.id}")
+        print(f"Spørsmål: {data.get('spørsmål', 'Ingen spørsmål funnet')}")
         mellomrom(1)
 
 
@@ -161,14 +167,14 @@ def meny():
 
 def adminpassord():
     password = "6969"
-    passord = input("Skriv inn admin passord: ")
-    
-    if passord == password:
-        adminValg()
-    else:
-        print("Feil passord!")
-        mellomrom(1)
-        meny()
+    for i in range(3):
+        passord = input("Skriv inn admin passord: ")
+        if passord == password:
+            adminValg()
+            return
+        else:
+            print("Feil passord! Prøv igjen.")
+    print("For mange feil forsøk. Tilbake til hovedmenyen.")
 
 def admin():
     print("-----------Quizmaskin-Admin----------")

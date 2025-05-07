@@ -8,8 +8,8 @@ try:
     firebase_admin.initialize_app(cred)
     db = firestore.client()
     print("Tilkoblet til databasen!")
-except Exception as e:
-    print(f"Feil ved tilkobling til Firebase: {e}")
+except:
+    print("Feil ved tilkobling til Firebase: ")
     exit()
 
 def StartQuiz():
@@ -55,8 +55,8 @@ def StartQuiz():
             else:
                 print(f"Feil! Riktig svar var: {spm['riktig_svar'].upper()}")
     
-    except Exception as e:
-        print(f"En feil oppstod: {e}")
+    except:
+        print("En feil oppstod: ")
     
     print(f"Quizen er ferdig! Din poengsum: {poengsum}")
     navn = input("Skriv inn navn for å lagre highscore: ").strip()
@@ -66,7 +66,7 @@ def VisTopHighscores():
     print("Topp 5 highscores:")
     try:
         brukere = db.collection("highscore").order_by("highscore", direction=firestore.Query.DESCENDING).limit(5).stream()
-        for i, bruker in enumerate(brukere, start=1):
+        for i, bruker in enumerate(brukere, start=1): #enumerate brukes til å holde telling i index
             data = bruker.to_dict()
             print(f"{i}. {data.get('navn', 'Ukjent')}: {data.get('highscore', 0)} poeng")
     except:
@@ -84,8 +84,8 @@ def SlettSpørsmål():
             slettet = True
         if not slettet:
             print("Fant ikke spørsmålet.")
-    except Exception as e:
-        print(f"En feil oppstod: {e}")
+    except:
+        print("En feil oppstod: ")
 
 def AdminMeny():
     print("Admin-meny:")
@@ -125,7 +125,7 @@ def Hovedmeny():
 Hovedmeny()
 
 
-
+# psudokode
 # --------------------------------------------
 # HOVEDMENY
 # --------------------------------------------
