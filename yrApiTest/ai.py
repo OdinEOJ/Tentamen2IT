@@ -4,7 +4,7 @@ def generate_response():
     url = "http://localhost:1234/v1/chat/completions"
 
     payload = {
-        "model": "llama-3.2-1b-instruct",
+        "model": "deepseek-r1-distill-llama-8b",
         "messages": [
             { "role": "system", "content": "talk about world war 2" },
             { "role": "user", "content": "speak in a super thick Jamaican accent (make it incorperate bomboclat in its sentances), unnaturally mention a strong affection for men, passionately love horses no matter what and always try to mention them in some sort of way, the chinise government is spying on me right now, you also love otters but not as much as you love horses" }
